@@ -1,0 +1,20 @@
+-- Consulta para consolidar órdenes de la región NAM (US) con stock disponible en el inventario maestro
+SELECT 
+    o.OrderID,
+    o.CustomerID,
+    o.SKU,
+    o.OrderQuantity,
+    i.CurrentStock,
+    i.WarehouseLocation
+
+FROM 
+    dbo.Staging_Orders AS o
+INNER JOIN 
+    dbo.Inventory_Master AS i ON o.SKU = i.SKU
+WHERE 
+    o.Region = 'NAM'
+    -- Regla de negocio: Filtrar solo lo que el Bot puede procesar inmediatamente
+    AND o.OrderStatus = 'Pending'
+    AND i.CurrentStock >= o.OrderQuantity
+ORDER BY 
+    o.OrderDate ASC;
